@@ -17,11 +17,11 @@ namespace RedHill.Core
             _requestTemplate = $"{baseUrl}/{version}/" + @"{0}" + $"/?datasource={datasource}";
         }
 
-        public async Task<string> GetResponse(string request)
+        public async Task<HttpResponseMessage> GetResponse(string request)
         {            
             var requestUrl = string.Format(_requestTemplate, request);
             _log.LogInformation("Sending request to {0}", requestUrl);
-            var response = await _client.GetStringAsync(requestUrl);
+            var response = await _client.GetAsync(requestUrl);
             return response;
         }
 
