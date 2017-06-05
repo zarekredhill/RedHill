@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using NLog;
+// using NLog.Extensions.Logging;
 
-namespace RedHill.Core
+namespace RedHill.Core.ESI
 {
     public class ESIRequestHandler : IDisposable
     {
-        private readonly ILogger _log;
+        private static readonly Logger _log = LogManager.GetCurrentClassLogger();
+
         private readonly HttpClient _client = new HttpClient();
         private readonly string _requestTemplate;
 
-        public ESIRequestHandler(string baseUrl, string version, string datasource, ILogger log)
+        public ESIRequestHandler(string baseUrl, string version, string datasource)
         {
-            _log = log;
             _requestTemplate = $"{baseUrl}/{version}/" + @"{0}" + $"/?datasource={datasource}";
         }
 
         public async Task<HttpResponseMessage> GetResponse(string request)
         {            
             var requestUrl = string.Format(_requestTemplate, request);
-            _log.LogInformation("Sending request to {0}", requestUrl);
+            _log.Info("Sending request to {0}", requestUrl);
             var response = await _client.GetAsync(requestUrl);
+            _log.Info("Received response from {0}. Content length: {1}", requestUrl, response.Content.Headers.ContentLength);
             return response;
         }
 
