@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="NLog" Version="5.0.0-beta07" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
     <ProjectReference Include="..\..\Core\Core.csproj" />
+    <None Include="app-settings.json" CopyToOutputDirectory="Always" />
+    
   </ItemGroup>
 
 </Project>

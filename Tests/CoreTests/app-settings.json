@@ -1,0 +1,7 @@
+{
+    "ESIEndpointSettings":{
+        "BaseURL": "https://esi.tech.ccp.is",
+        "Version": "latest",
+        "DataSource": "tranquility"
+    }
+}

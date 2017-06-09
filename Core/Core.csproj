@@ -1,13 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
     <AssemblyName>RedHill.Core</AssemblyName>
     <PackageId>RedHill.Core</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.0.0-beta07" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-beta5" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" /> 
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="1.1.2" /> 
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.2" /> 
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="1.1.2" /> 
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.2" /> 
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.2" /> 
   </ItemGroup>
 
 </Project>
