@@ -39,7 +39,6 @@ namespace RedHill.Core
                 .AddSingleton<RequestHandler>()
                 .AddSingleton<SkillsProvider>()
                 .AddSingleton<DataProvider>()
-                .AddSingleton<CachingDataProvider>()
                 .AddDistributedRedisCache(option =>
                {
                    option.Configuration = configuration["RedisSettings:Configuration"];

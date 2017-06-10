@@ -20,7 +20,7 @@ namespace RedHill.Core.ESI
 
         public async Task<ImmutableList<Skill>> GetSkills()
         {
-            var response = await RequestHandler.GetResponse("universe/categories");
+            var response = await RequestHandler.GetResponse("universe", "categories");
           
             var foo = (JArray) JsonConvert.DeserializeObject(response);
 

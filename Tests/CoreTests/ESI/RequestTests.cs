@@ -20,8 +20,8 @@ namespace RedHill.CoreTests.ESI
         [Fact]
         public async void TestSkills()
         {
-            var dataProvider = Services.GetService<CachingDataProvider>();
-            var response = await dataProvider.GetSkills();
+            var skills = Services.GetService<SkillsProvider>();
+            var response = await skills.GetSkills();
             Assert.NotNull(response);
         }        
     }

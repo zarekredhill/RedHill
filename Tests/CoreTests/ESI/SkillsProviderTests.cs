@@ -7,10 +7,10 @@ using RedHill.Core;
 
 namespace RedHill.CoreTests.ESI
 {
-    public class CachingDataProviderTests
+    public class SkillsProviderTests
     {
         private IServiceProvider Services { get; }
-        public CachingDataProviderTests()
+        public SkillsProviderTests()
         {
             Services = new ServiceCollection()
                 .InstallRedHillCore()
@@ -20,14 +20,14 @@ namespace RedHill.CoreTests.ESI
         [Fact]
         public void Trivial()
         {
-            var dataProvider = Services.GetService<CachingDataProvider>();
+            var dataProvider = Services.GetService<SkillsProvider>();
             Assert.NotNull(dataProvider);
         }
 
         [Fact]
         public async void TestSomeSkillsExist()
         {
-            var dataProvider = Services.GetService<CachingDataProvider>();
+            var dataProvider = Services.GetService<SkillsProvider>();
             var skills = await dataProvider.GetSkills();
             Assert.NotEmpty(skills);
         }
