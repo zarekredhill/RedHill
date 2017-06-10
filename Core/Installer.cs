@@ -35,7 +35,6 @@ namespace RedHill.Core
                 .AddJsonFile("app-settings.json", false)
                 .Build();
 
-
             services
                 .AddSingleton<RequestHandler>()
                 .AddSingleton<SkillsProvider>()
@@ -43,11 +42,11 @@ namespace RedHill.Core
                 .AddSingleton<CachingDataProvider>()
                 .AddDistributedRedisCache(option =>
                {
-                   option.Configuration = "127.0.0.1";
-                   option.InstanceName = "master";
+                   option.Configuration = configuration["RedisSettings:Configuration"];
+                   //option.InstanceName = configuration["RedisSettings:InstanceName"];
                })
                .Configure<ESIEndpointSettings>(configuration.GetSection("ESIEndpointSettings"));
-            
+
             return services;
         }
     }

@@ -21,9 +21,8 @@ namespace RedHill.Core.ESI
         public async Task<ImmutableList<Skill>> GetSkills()
         {
             var response = await RequestHandler.GetResponse("universe/categories");
-            var content = await response.Content.ReadAsStringAsync();
-
-            var foo = (JArray) JsonConvert.DeserializeObject(content);
+          
+            var foo = (JArray) JsonConvert.DeserializeObject(response);
 
             var result = foo.Select(a => new Skill(a.ToString(), a.ToString())).ToImmutableList();
             return result;
