@@ -37,12 +37,13 @@ namespace RedHill.Core
 
             services
                 .AddSingleton<RequestHandler>()
+                .AddSingleton<CategoriesProvider>()
                 .AddSingleton<SkillsProvider>()
                 .AddSingleton<DataProvider>()
                 .AddDistributedRedisCache(option =>
                {
                    option.Configuration = configuration["RedisSettings:Configuration"];
-                   //option.InstanceName = configuration["RedisSettings:InstanceName"];
+                   option.InstanceName = configuration["RedisSettings:InstanceName"];
                })
                .Configure<ESIEndpointSettings>(configuration.GetSection("ESIEndpointSettings"));
 

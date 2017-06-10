@@ -39,7 +39,7 @@ namespace RedHill.Core.ESI
             else
             {
                 Log.Debug("Cache miss on {0}", key);
-                var requestUrl = string.Format(_requestTemplate, request);
+                var requestUrl = string.Format(_requestTemplate, string.Join("/", request));
                 Log.Info("Sending request to {0}", requestUrl);
                 var response = await _client.GetAsync(requestUrl);
                 var slidingExpiration = GetSlidingExpiration(response);

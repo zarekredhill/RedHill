@@ -1,7 +1,7 @@
 {
     "RedisSettings":{
         "Configuration": "127.0.0.1",
-        "InstanceName": "0"
+        "InstanceName": ""
     },
     "ESIEndpointSettings":{
         "BaseURL": "https://esi.tech.ccp.is",
