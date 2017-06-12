@@ -32,12 +32,12 @@ namespace RedHill.Core.ESI
             var categories = await CategoriesProvider.Get();
             var skillsCategory = categories.Single(a => string.Equals("Skill", a.Name, StringComparison.OrdinalIgnoreCase));
 
-            var skills = (await Task.WhenAll(skillsCategory.GroupIds.Select(async groupId => await GetSkillsForGroup(groupId))))
+            var result = (await Task.WhenAll(skillsCategory.GroupIds.Select(async groupId => await GetSkillsForGroup(groupId))))
                     .SelectMany(a => a)
                     .ToImmutableList();
 
-            Log.Info("{0} skills built.", skills.Count);
-            return skills.ToImmutableList();
+            Log.Info("{0} skills built.", result.Count);
+            return result;
         }
 
         private async Task<IEnumerable<Skill>> GetSkillsForGroup(int groupId)
@@ -51,9 +51,8 @@ namespace RedHill.Core.ESI
             return (await Task.WhenAll(typeIds.Select(async a => 
                 {
                     var objType = await GetType(a.Value<int>());
-                    return objType?.GetValue("published").Value<bool>() ?? false
-                        ? new Skill(objType.GetValue("name").Value<string>(), objType.GetValue("description").Value<string>())
-                        : null;
+                    return objType == null ? null
+                        : new Skill(objType.GetValue("name").Value<string>(), objType.GetValue("description").Value<string>());
                 })))
                 .Where(a => null != a);
         }
