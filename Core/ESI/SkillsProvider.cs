@@ -18,14 +18,23 @@ namespace RedHill.Core.ESI
 
         private RequestHandler RequestHandler { get; }
         private CategoriesProvider CategoriesProvider { get; }
+        private TypesProvider TypesProvider { get; }
+        private ImmutableList<Skill> Cache { get; set; }
 
-        public SkillsProvider(CategoriesProvider categoriesProvider, RequestHandler requestHandler)
+        public SkillsProvider(RequestHandler requestHandler, CategoriesProvider categoriesProvider, TypesProvider typesProvider)
         {
             CategoriesProvider = categoriesProvider;
             RequestHandler = requestHandler;
+            TypesProvider = typesProvider;
         }
 
-        public async Task<ImmutableList<Skill>> GetSkills()
+        public async Task<ImmutableList<Skill>> Get()
+        {
+            if (null != Cache) return Cache;
+            return Cache = await GetSkills();
+        }
+
+        private async Task<ImmutableList<Skill>> GetSkills()
         {
             Log.Info("Building skills.");
 
@@ -42,7 +51,7 @@ namespace RedHill.Core.ESI
 
         private async Task<IEnumerable<Skill>> GetSkillsForGroup(int groupId)
         {
-            var groupResponse = await RequestHandler.GetResponseAsync("universe", "groups", groupId.ToString());
+            var groupResponse = await RequestHandler.GetResponseAsync("universe", "groups", groupId);
             var objGroup = (JObject)JsonConvert.DeserializeObject(groupResponse);
 
             if (!objGroup.GetValue("published").Value<bool>()) return Enumerable.Empty<Skill>();
@@ -50,16 +59,16 @@ namespace RedHill.Core.ESI
 
             return (await Task.WhenAll(typeIds.Select(async a => 
                 {
-                    var objType = await GetType(a.Value<int>());
-                    return objType == null ? null
-                        : new Skill(objType.GetValue("name").Value<string>(), objType.GetValue("description").Value<string>());
+                    var type = await TypesProvider.Get(a.Value<int>());
+                    if (null == type) return null;
+                    return new Skill(type.Name, type.Description, type.AttributeValues.ToDictionary(b => b.Key.Name, b => b.Value).ToImmutableDictionary());
                 })))
                 .Where(a => null != a);
         }
 
         private async Task<JObject> GetType(int typeId)
         {
-            var typeResponse = await RequestHandler.GetResponseAsync("universe", "types", typeId.ToString());
+            var typeResponse = await RequestHandler.GetResponseAsync("universe", "types");
             var result = (JObject)JsonConvert.DeserializeObject(typeResponse);
             return result.GetValue("published").Value<bool>() ? result : null;
         }

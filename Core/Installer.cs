@@ -39,6 +39,8 @@ namespace RedHill.Core
                 .AddSingleton<RequestHandler>()
                 .AddSingleton<CategoriesProvider>()
                 .AddSingleton<SkillsProvider>()
+                .AddSingleton<TypesProvider>()
+                .AddSingleton<AttributesProvider>()
                 .AddSingleton<DataProvider>()
                 .AddDistributedRedisCache(option =>
                {

@@ -28,7 +28,7 @@ namespace RedHill.CoreTests.ESI
         public async void TestSomeSkillsExist()
         {
             var dataProvider = Services.GetService<SkillsProvider>();
-            var skills = await dataProvider.GetSkills();
+            var skills = await dataProvider.Get();
             Assert.NotEmpty(skills);
         }
 

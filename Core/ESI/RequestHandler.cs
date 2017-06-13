@@ -30,7 +30,7 @@ namespace RedHill.Core.ESI
             _keys = new[] { ESIEndpointSettings.DataSource, ESIEndpointSettings.Version };
         }
 
-        public async Task<string> GetResponseAsync(params string[] request)
+        public async Task<string> GetResponseAsync(params object[] request)
         {
             var key = string.Join("/", _keys.Concat(request));
             var payload = Cache.GetString(key);

@@ -25,7 +25,7 @@ namespace RedHill.Core.ESI
             if (!Cache.TryGetValue<ImmutableList<Skill>>("skills", out result))
             {
                 Log.Info("Cache miss: skills.");
-                Cache.Set("skills", result = await Skills.GetSkills(), TimeSpan.FromHours(1));
+                Cache.Set("skills", result = await Skills.Get(), TimeSpan.FromHours(1));
             }
             return result;
         }

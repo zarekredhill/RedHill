@@ -20,11 +20,18 @@ namespace RedHill.Core
     {
         public string Name { get; }
         public string Description { get; }
+        public ImmutableDictionary<string, decimal> Attributes { get; }
 
-        public Skill(string name, string description)
+        public Skill(string name, string description, ImmutableDictionary<string, decimal> attributes)
         {
             Name = name;
             Description = description;
+            Attributes = attributes;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }
