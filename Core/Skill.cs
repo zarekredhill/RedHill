@@ -18,20 +18,24 @@ namespace RedHill.Core
 
     public class Skill
     {
+        public int TypeId { get; }
         public string Name { get; }
         public string Description { get; }
-        public ImmutableDictionary<string, decimal> Attributes { get; }
+        public ImmutableDictionary<Skill, int> Requirements { get; }
 
-        public Skill(string name, string description, ImmutableDictionary<string, decimal> attributes)
+        public Skill(int typeId, string name, string description, ImmutableDictionary<Skill, int> requirements)
         {
+            TypeId = typeId;
             Name = name;
             Description = description;
-            Attributes = attributes;
+            Requirements = requirements;
         }
 
         public override string ToString()
         {
             return Name;
         }
+
+
     }
 }
