@@ -14,5 +14,10 @@ namespace RedHill.Core.ESI
             Name = name;
             GroupIds = groupIds;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

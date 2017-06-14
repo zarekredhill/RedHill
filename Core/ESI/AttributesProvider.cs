@@ -24,10 +24,12 @@ namespace RedHill.Core.ESI
             Attribute result;
             if (Cache.TryGetValue(id, out result)) return result;
 
+            var attribute = await GetAttribute(id);
             await _semaphore.WaitAsync();
 
             try
             {
+                if (Cache.TryGetValue(id, out result)) return result;
                 return Cache[id] = await GetAttribute(id);
             }
             finally
