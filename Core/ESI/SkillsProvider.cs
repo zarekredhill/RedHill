@@ -15,7 +15,6 @@ namespace RedHill.Core.ESI
     public class SkillsProvider
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private RequestHandler RequestHandler { get; }
         private CategoriesProvider CategoriesProvider { get; }
         private TypesProvider TypesProvider { get; }
@@ -44,6 +43,7 @@ namespace RedHill.Core.ESI
             var flatSkills = (await Task.WhenAll(skillsCategory.GroupIds.Select(async groupId => await GetSkillsForGroup(groupId))))
                     .SelectMany(a => a);
 
+            Log.Info("Creating skill tree...");
             var result = CreateSkillsFromFlastList(flatSkills.ToDictionary(a => a.Item1, a => Tuple.Create(a.Item2, a.Item3, a.Item4)))
                             .ToImmutableList();
 
@@ -56,13 +56,13 @@ namespace RedHill.Core.ESI
             var groupResponse = await RequestHandler.GetResponseAsync("universe", "groups", groupId);
             var objGroup = (JObject)JsonConvert.DeserializeObject(groupResponse);
 
-            if (!objGroup.GetValue("published").Value<bool>()) return Enumerable.Empty<Tuple<int, string, string, ImmutableDictionary<int, int>>>();
             var typeIds = (JArray)objGroup.GetValue("types");
 
             var result = (await Task.WhenAll(typeIds.Select(async a =>
                 {
                     var type = await TypesProvider.Get(a.Value<int>());
                     if (null == type) return null;
+                    Log.Trace("Getting attributes for type {0}", type);
                     var reqs = GetRequirements(type.AttributeValues);
                     return Tuple.Create(type.Id, type.Name, type.Description, reqs);
                 })))
@@ -74,8 +74,10 @@ namespace RedHill.Core.ESI
         private IEnumerable<Skill> CreateSkillsFromFlastList(Dictionary<int, Tuple<string, string, ImmutableDictionary<int, int>>> flatSkills)
         {
             var dict = new Dictionary<int, Skill>();
-            while (flatSkills.Any())
+            int lastCount = 0;
+            while (lastCount != flatSkills.Count)
             {
+                lastCount = flatSkills.Counts
                 var toRemove = new List<int>();
                 foreach (var flatSkill in flatSkills)
                 {
@@ -93,8 +95,6 @@ namespace RedHill.Core.ESI
                     dict[flatSkill.Key] = new Skill(flatSkill.Key, flatSkill.Value.Item1, flatSkill.Value.Item2, flatSkill.Value.Item3.ToImmutableDictionary(a => dict[a.Key], a => (int)a.Value));
                     toRemove.Add(flatSkill.Key);
                 }
-
-
                 foreach (var a in toRemove) flatSkills.Remove(a);
             }
             return dict.Values;
@@ -103,23 +103,25 @@ namespace RedHill.Core.ESI
         private static ImmutableDictionary<int, int> GetRequirements(ImmutableDictionary<Attribute, decimal> attrs)
         {
             var result = new Dictionary<int, int>();
+           
             var dict = attrs.ToDictionary(a => a.Key.Name, a => a.Value);
             for (var n = 1; ; n++)
             {
                 decimal skillId;
                 if (!dict.TryGetValue($"requiredSkill{n}", out skillId)) break;
-                var level = (int)dict[$"requiredSkill{n}Level"];
+                decimal level;
+                if (!dict.TryGetValue($"requiredSkill{n}Level", out level)) continue;
 
-                result[(int)skillId] = level;
-            }
+                result[(int)skillId] = (int) level;
+            }           
+
             return result.ToImmutableDictionary();
         }
 
         private async Task<JObject> GetType(int typeId)
         {
             var typeResponse = await RequestHandler.GetResponseAsync("universe", "types");
-            var result = (JObject)JsonConvert.DeserializeObject(typeResponse);
-            return result.GetValue("published").Value<bool>() ? result : null;
+            return (JObject)JsonConvert.DeserializeObject(typeResponse);
         }
     }
 }

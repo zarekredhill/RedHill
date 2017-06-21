@@ -44,10 +44,6 @@ namespace RedHill.Core.ESI
             var obj = (JObject)JsonConvert.DeserializeObject(response);
             var name = obj.GetValue("name").Value<string>();
 
-            // Hack -- required skill levels are currently published=false, but we need the info.
-            if (name.StartsWith("requiredSkill"))  return new Attribute(id, name);
-
-            if (!obj.GetValue("published").Value<bool>()) return null;
             return new Attribute(id, name);
         }
     }

@@ -46,7 +46,6 @@ namespace RedHill.Core.ESI
         {
             var categoryResponse = await RequestHandler.GetResponseAsync("universe", "categories", categoryId);
             var obj = (JObject)JsonConvert.DeserializeObject(categoryResponse);
-            if (!obj.GetValue("published").Value<bool>()) return null;
 
             var name = obj.GetValue("name").Value<string>();
             var groupIds = ((JArray)obj.GetValue("groups")).Select(a => a.Value<int>()).ToImmutableList();

@@ -7,5 +7,8 @@
         "BaseURL": "https://esi.tech.ccp.is",
         "Version": "latest",
         "DataSource": "tranquility"
+    },
+    "StaticFileProviderOptions":{
+        "BaseFolder": "C:\\Users\\arote\\Downloads\\sde-20170613-TRANQUILITY"
     }
 }

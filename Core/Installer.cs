@@ -26,7 +26,7 @@ namespace RedHill.Core
                 Layout = "${longdate}|${logger}|${uppercase:${level}}|${message} ${exception}"
             };
             config.AddTarget(t);
-            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Info, t));
+            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, t));
             LogManager.Configuration = config;
             LogManager.Configuration.Reload();
 
@@ -41,13 +41,16 @@ namespace RedHill.Core
                 .AddSingleton<SkillsProvider>()
                 .AddSingleton<TypesProvider>()
                 .AddSingleton<AttributesProvider>()
+                .AddSingleton<StaticFileProvider>()
+                .AddSingleton<StaticTypeDataProvider>()
                 .AddSingleton<DataProvider>()
                 .AddDistributedRedisCache(option =>
                {
                    option.Configuration = configuration["RedisSettings:Configuration"];
                    option.InstanceName = configuration["RedisSettings:InstanceName"];
                })
-               .Configure<ESIEndpointSettings>(configuration.GetSection("ESIEndpointSettings"));
+               .Configure<ESIEndpointSettings>(configuration.GetSection("ESIEndpointSettings"))
+               .Configure<StaticFileProviderOptions>(configuration.GetSection("StaticFileProviderOptions"));
 
             return services;
         }

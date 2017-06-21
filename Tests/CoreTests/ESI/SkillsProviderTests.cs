@@ -31,6 +31,5 @@ namespace RedHill.CoreTests.ESI
             var skills = await dataProvider.Get();
             Assert.NotEmpty(skills);
         }
-
     }
 }
