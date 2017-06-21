@@ -10,7 +10,7 @@ namespace RedHill.Core.ESI
 {
     public class TypesProvider
     {
-        private Dictionary<int, Type> Cache { get; } = new Dictionary<int, Type>();
+        private Dictionary<int, TypeInfo> Cache { get; } = new Dictionary<int, TypeInfo>();
         private RequestHandler RequestHandler { get; }
         private AttributesProvider AttributesProvider { get; }
         private StaticTypeDataProvider StaticTypeDataProvider { get; }
@@ -22,14 +22,14 @@ namespace RedHill.Core.ESI
             StaticTypeDataProvider = staticTypeDataProvider;
         }
 
-        public async Task<Type> Get(int id)
+        public async Task<TypeInfo> Get(int id)
         {
-            Type result;
+            TypeInfo result;
             if (Cache.TryGetValue(id, out result)) return result;
 
             var attributes = await GetTypeAttributes(id);
-            var staticData = StaticTypeDataProvider.StaticTypeData[id];
-            result = Cache[id] = new Type(id, staticData.Name, staticData.Description, attributes);
+            var staticData = StaticTypeDataProvider.Data[id];
+            result = Cache[id] = new TypeInfo(id, staticData.Name, staticData.Description, attributes);
             return result;
         }
 

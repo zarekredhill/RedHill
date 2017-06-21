@@ -44,14 +44,14 @@ namespace RedHill.Core.ESI
                     .SelectMany(a => a);
 
             Log.Info("Creating skill tree...");
-            var result = CreateSkillsFromFlastList(flatSkills.ToDictionary(a => a.Item1, a => Tuple.Create(a.Item2, a.Item3, a.Item4)))
+            var result = CreateSkillsFromFlastList(flatSkills.ToDictionary(a => a.Item1, a => a.Item2))
                             .ToImmutableList();
 
             Log.Info("{0} skills built.", result.Count);
             return result;
         }
 
-        private async Task<IEnumerable<Tuple<int, string, string, ImmutableDictionary<int, int>>>> GetSkillsForGroup(int groupId)
+        private async Task<IEnumerable<Tuple<TypeInfo, ImmutableDictionary<int, int>>>> GetSkillsForGroup(int groupId)
         {
             var groupResponse = await RequestHandler.GetResponseAsync("universe", "groups", groupId);
             var objGroup = (JObject)JsonConvert.DeserializeObject(groupResponse);
@@ -64,25 +64,25 @@ namespace RedHill.Core.ESI
                     if (null == type) return null;
                     Log.Trace("Getting attributes for type {0}", type);
                     var reqs = GetRequirements(type.AttributeValues);
-                    return Tuple.Create(type.Id, type.Name, type.Description, reqs);
+                    return Tuple.Create(type, reqs);
                 })))
                 .Where(a => null != a)
                 .ToList();
             return result;
         }
 
-        private IEnumerable<Skill> CreateSkillsFromFlastList(Dictionary<int, Tuple<string, string, ImmutableDictionary<int, int>>> flatSkills)
+        private IEnumerable<Skill> CreateSkillsFromFlastList(Dictionary<TypeInfo, ImmutableDictionary<int, int>> flatSkills)
         {
             var dict = new Dictionary<int, Skill>();
             int lastCount = 0;
             while (lastCount != flatSkills.Count)
             {
-                lastCount = flatSkills.Counts
-                var toRemove = new List<int>();
+                lastCount = flatSkills.Count;
+                var toRemove = new List<TypeInfo>();
                 foreach (var flatSkill in flatSkills)
                 {
                     var skip = false;
-                    foreach (var dep in flatSkill.Value.Item3)
+                    foreach (var dep in flatSkill.Value)
                     {
                         if (!dict.ContainsKey(dep.Key)) 
                         { 
@@ -92,7 +92,7 @@ namespace RedHill.Core.ESI
                     }
 
                     if (skip) continue;
-                    dict[flatSkill.Key] = new Skill(flatSkill.Key, flatSkill.Value.Item1, flatSkill.Value.Item2, flatSkill.Value.Item3.ToImmutableDictionary(a => dict[a.Key], a => (int)a.Value));
+                    dict[flatSkill.Key.Id] = new Skill(flatSkill.Key, flatSkill.Value.ToImmutableDictionary(a => dict[a.Key], a => (int)a.Value));
                     toRemove.Add(flatSkill.Key);
                 }
                 foreach (var a in toRemove) flatSkills.Remove(a);

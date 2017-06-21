@@ -12,11 +12,12 @@ namespace RedHill.Core.ESI
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public ImmutableDictionary<int, StaticTypeData> StaticTypeData { get; }
+        public ImmutableDictionary<int, StaticTypeData> Data { get; }
 
         public StaticTypeDataProvider(StaticFileProvider staticFileProvider)
         {
-            StaticTypeData = Parse(staticFileProvider.Get("sde", "fsd", "typeIDs.yaml"));
+            Data = Parse(staticFileProvider.Get("sde", "fsd", "typeIDs.yaml"));
+            Log.Info("Static type data loaded. ({0})", Data.Count);
         }
 
         private ImmutableDictionary<int, StaticTypeData> Parse(YamlDocument yamlDocument)

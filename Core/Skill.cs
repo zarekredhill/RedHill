@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using RedHill.Core.ESI;
 
 namespace RedHill.Core
 {
@@ -18,24 +19,13 @@ namespace RedHill.Core
 
     public class Skill
     {
-        public int TypeId { get; }
-        public string Name { get; }
-        public string Description { get; }
+        public TypeInfo Type { get; }
         public ImmutableDictionary<Skill, int> Requirements { get; }
 
-        public Skill(int typeId, string name, string description, ImmutableDictionary<Skill, int> requirements)
+        public Skill(TypeInfo type, ImmutableDictionary<Skill, int> requirements)
         {
-            TypeId = typeId;
-            Name = name;
-            Description = description;
+            Type = type;
             Requirements = requirements;
         }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
-
     }
 }

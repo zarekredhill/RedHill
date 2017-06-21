@@ -39,6 +39,7 @@ namespace RedHill.Core
                 .AddSingleton<RequestHandler>()
                 .AddSingleton<CategoriesProvider>()
                 .AddSingleton<SkillsProvider>()
+                .AddSingleton<BlueprintTemplateProvider>()
                 .AddSingleton<TypesProvider>()
                 .AddSingleton<AttributesProvider>()
                 .AddSingleton<StaticFileProvider>()

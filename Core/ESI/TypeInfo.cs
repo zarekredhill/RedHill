@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace RedHill.Core.ESI
 {
-    public class Type
+    public class TypeInfo
     {
         public int Id { get; }
         public string Name { get; }
@@ -12,7 +12,7 @@ namespace RedHill.Core.ESI
 
         public ImmutableDictionary<Attribute, decimal> AttributeValues { get; }
 
-        public Type(int id, string name, string description, ImmutableDictionary<Attribute, decimal> attributeValues)
+        public TypeInfo(int id, string name, string description, ImmutableDictionary<Attribute, decimal> attributeValues)
         {
             Id = id;
             Name = name;
