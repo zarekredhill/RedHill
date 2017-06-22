@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using YamlDotNet.RepresentationModel;
 using NLog;
+using RedHill.Core.Util;
 
 namespace RedHill.Core.ESI
 {
@@ -39,13 +40,14 @@ namespace RedHill.Core.ESI
 
         private BlueprintTemplate Parse(StaticTypeData type, YamlScalarNode keyNode, YamlMappingNode valueNode) 
         {
-            var activities = (YamlMappingNode) valueNode.Children.Single(a => string.Equals("activities", ((YamlScalarNode)a.Key).Value, StringComparison.OrdinalIgnoreCase)).Value;
-            var copying = (YamlMappingNode) activities.Children.SingleOrDefault(a => string.Equals("copying", ((YamlScalarNode)a.Key).Value, StringComparison.OrdinalIgnoreCase)).Value;
-            var time = (YamlScalarNode) copying?.Children.Single(a => string.Equals("time", ((YamlScalarNode)a.Key).Value, StringComparison.OrdinalIgnoreCase)).Value;
-            TimeSpan? copyTime = null;
-            if (null != time) copyTime = TimeSpan.FromSeconds(int.Parse(time.Value));
-
-            return new BlueprintTemplate(type, copyTime);
+            Log.Info(keyNode.Value);
+            int copyTimeSecond;
+            var copyTime = valueNode.TryGetScalar<int>(out copyTimeSecond, "activities","copying", "time")
+                ? (TimeSpan?)TimeSpan.FromSeconds(copyTimeSecond) 
+                : null;
+    
+            var maxProductionLimit = valueNode.GetScalar<int>("maxProductionLimit");
+            return new BlueprintTemplate(type, copyTime, maxProductionLimit);
         }
     }
 }
