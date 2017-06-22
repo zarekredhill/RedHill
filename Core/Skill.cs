@@ -20,12 +20,24 @@ namespace RedHill.Core
     public class Skill
     {
         public TypeInfo Type { get; }
-        public ImmutableDictionary<Skill, int> Requirements { get; }
+        public ImmutableList<Requirement> Requirements { get; }
 
-        public Skill(TypeInfo type, ImmutableDictionary<Skill, int> requirements)
+        public Skill(TypeInfo type, ImmutableList<Requirement> requirements)
         {
             Type = type;
             Requirements = requirements;
+        }
+
+        public class Requirement
+        {
+            public Skill Skill { get; }
+            public int Level { get; }
+
+            public Requirement(Skill skill, int level)
+            {
+                Skill = skill;
+                Level = level;
+            }
         }
     }
 }
