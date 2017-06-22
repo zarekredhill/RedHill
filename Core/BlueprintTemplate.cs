@@ -6,14 +6,18 @@ namespace RedHill.Core
     public class BlueprintTemplate
     {
         public StaticTypeData Type { get; }
-        public TimeSpan? CopyTime { get; }
         public int MaxProductionLimit { get; }
+        public TimeSpan? CopyTime { get; }
+        public TimeSpan? MaterialResearchTime {get;}
+        public TimeSpan? TimeResearchTime {get;}
 
-        public BlueprintTemplate(StaticTypeData type, TimeSpan? copyTime, int maxProductionLimit)
+        public BlueprintTemplate(StaticTypeData type, int maxProductionLimit, TimeSpan? copyTime, TimeSpan? materialResearchTime, TimeSpan? timeResearchTime)
         {
             Type = type;
-            CopyTime = copyTime;
             MaxProductionLimit = maxProductionLimit;
+            CopyTime = copyTime;
+            MaterialResearchTime = materialResearchTime;
+            TimeResearchTime = timeResearchTime;            
         }
     }
 }

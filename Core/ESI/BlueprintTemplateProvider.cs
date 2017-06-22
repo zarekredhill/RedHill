@@ -19,6 +19,7 @@ namespace RedHill.Core.ESI
         {
             TypeData = StaticTypeDataProvider.Data;
             Data = Parse(staticFileProvider.Get("sde", "fsd", "blueprints.yaml"));
+            Log.Info("Blueprint templates loaded ({0}).", Data.Count);
         }
 
         private ImmutableDictionary<StaticTypeData, BlueprintTemplate> Parse(YamlDocument yamlDocument)
@@ -39,14 +40,19 @@ namespace RedHill.Core.ESI
 
         private BlueprintTemplate Parse(StaticTypeData type, YamlScalarNode keyNode, YamlMappingNode valueNode) 
         {
-            Log.Info(keyNode.Value);
             int copyTimeSecond;
-            var copyTime = valueNode.TryGetScalar<int>(out copyTimeSecond, "activities", "copying", "time")
+
+            var times = new[]{ "copying", "research_material", "research_time" }
+                .Select( a => valueNode.TryGetScalar<int>(out copyTimeSecond, "activities", a, "time")
                 ? (TimeSpan?)TimeSpan.FromSeconds(copyTimeSecond) 
-                : null;
-    
+                : null).ToArray();
+            
+            var copyTime = times[0];
+            var materialResearchTime = times[1];
+            var timeResearchTime = times[2];
+
             var maxProductionLimit = valueNode.GetScalar<int>("maxProductionLimit");
-            return new BlueprintTemplate(type, copyTime, maxProductionLimit);
+            return new BlueprintTemplate(type, maxProductionLimit, copyTime, materialResearchTime, timeResearchTime);
         }
     }
 }
