@@ -9,14 +9,17 @@ namespace RedHill.Core
         public TypeInfo Type { get; }
         public ManufacturingDetails Manufacturing { get; }
         public CopyingDetails Copying { get; }
+        public ResearchDetails MaterialResearch { get; }
+        public ResearchDetails TimeResearch { get; }
 
-        public BlueprintTemplate(TypeInfo type, CopyingDetails copying, ManufacturingDetails manufacturing)
+        public BlueprintTemplate(TypeInfo type, CopyingDetails copying, ManufacturingDetails manufacturing, ResearchDetails materialResearch, ResearchDetails timeResearch)
         {
             Type = type;
             Copying = copying;
             Manufacturing = manufacturing;
+            MaterialResearch = materialResearch;
+            TimeResearch = timeResearch;
         }
-
 
         public class CopyingDetails
         {
@@ -50,5 +53,21 @@ namespace RedHill.Core
                 Materials = materials;
             }
         }
+
+        public class ResearchDetails
+        {
+            public TimeSpan Time { get; }
+            public ImmutableList<Skill.Requirement> Requirements { get; }
+            public ImmutableDictionary<TypeInfo, int> Materials { get; }
+
+            public ResearchDetails(TimeSpan time,ImmutableList<Skill.Requirement> requirements, ImmutableDictionary<TypeInfo, int> materials)
+            {
+                Time = time;
+                Requirements = requirements;
+                Materials = materials;
+            }
+        }
+
+
     }
 }
