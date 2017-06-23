@@ -40,10 +40,11 @@ namespace RedHill.Core
                 .AddSingleton<CategoriesProvider>()
                 .AddSingleton<SkillsProvider>()
                 .AddSingleton<BlueprintTemplateProvider>()
-                .AddSingleton<TypesProvider>()
+                .AddSingleton<TypeAttributeProvider>()
                 .AddSingleton<AttributesProvider>()
                 .AddSingleton<StaticFileProvider>()
-                .AddSingleton<StaticTypeDataProvider>()
+                .AddSingleton<TypeInfoProvider>()                
+                .AddSingleton<TypeAttributeProvider>()
                 .AddSingleton<DataProvider>()
                 .AddDistributedRedisCache(option =>
                {

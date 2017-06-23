@@ -36,11 +36,11 @@ namespace RedHill.Core.ESI
             var payload = Cache.GetString(key);
             if (payload != null)
             {
-                Log.Debug("Cache hit on {0}", key);
+                Log.Trace("Cache hit on {0}", key);
                 return payload;
             }
             
-            Log.Debug("Cache miss on {0}", key);
+            Log.Trace("Cache miss on {0}", key);
             var requestUrl = string.Format(_requestTemplate, string.Join("/", request));
             Log.Info("Sending request to {0}", requestUrl);
             var response = await _client.GetAsync(requestUrl);

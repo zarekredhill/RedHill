@@ -18,13 +18,6 @@ namespace RedHill.CoreTests.ESI
         }
 
         [Fact]
-        public void Trivial()
-        {
-            var dataProvider = Services.GetService<SkillsProvider>();
-            Assert.NotNull(dataProvider);
-        }
-
-        [Fact]
         public async void TestSomeSkillsExist()
         {
             var dataProvider = Services.GetService<SkillsProvider>();

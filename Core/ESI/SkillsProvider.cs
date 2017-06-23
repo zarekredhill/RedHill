@@ -17,14 +17,16 @@ namespace RedHill.Core.ESI
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private RequestHandler RequestHandler { get; }
         private CategoriesProvider CategoriesProvider { get; }
-        private TypesProvider TypesProvider { get; }
+        private TypeInfoProvider TypeInfoProvider { get; }
+        private TypeAttributeProvider TypeAttributeProvider { get; }
         private ImmutableList<Skill> Cache { get; set; }
 
-        public SkillsProvider(RequestHandler requestHandler, CategoriesProvider categoriesProvider, TypesProvider typesProvider)
+        public SkillsProvider(RequestHandler requestHandler, CategoriesProvider categoriesProvider, TypeInfoProvider typeInfoProvider, TypeAttributeProvider typeAttributeProvider)
         {
             CategoriesProvider = categoriesProvider;
             RequestHandler = requestHandler;
-            TypesProvider = typesProvider;
+            TypeInfoProvider = typeInfoProvider;
+            TypeAttributeProvider = typeAttributeProvider;
         }
 
         public async Task<ImmutableList<Skill>> Get()
@@ -43,15 +45,16 @@ namespace RedHill.Core.ESI
             var flatSkills = (await Task.WhenAll(skillsCategory.GroupIds.Select(async groupId => await GetSkillsForGroup(groupId))))
                     .SelectMany(a => a);
 
+            var typeInfos = TypeInfoProvider.Get();
             Log.Info("Creating skill tree...");
-            var result = CreateSkillsFromFlastList(flatSkills.ToDictionary(a => a.Item1, a => a.Item2))
+            var result = CreateSkillsFromFlastList(flatSkills.ToDictionary(a => typeInfos[a.Item1], a => a.Item2))
                             .ToImmutableList();
 
             Log.Info("{0} skills built.", result.Count);
             return result;
         }
 
-        private async Task<IEnumerable<Tuple<TypeInfo, ImmutableDictionary<int, int>>>> GetSkillsForGroup(int groupId)
+        private async Task<IEnumerable<Tuple<int, ImmutableDictionary<int, int>>>> GetSkillsForGroup(int groupId)
         {
             var groupResponse = await RequestHandler.GetResponseAsync("universe", "groups", groupId);
             var objGroup = (JObject)JsonConvert.DeserializeObject(groupResponse);
@@ -60,11 +63,11 @@ namespace RedHill.Core.ESI
 
             var result = (await Task.WhenAll(typeIds.Select(async a =>
                 {
-                    var type = await TypesProvider.Get(a.Value<int>());
-                    if (null == type) return null;
-                    Log.Trace("Getting attributes for type {0}", type);
-                    var reqs = GetRequirements(type.AttributeValues);
-                    return Tuple.Create(type, reqs);
+                    var typeId = a.Value<int>();
+                    var attrs = await TypeAttributeProvider.GetTypeAttributes(typeId);
+                    if (null == attrs) return null;
+                    var reqs = GetRequirements(attrs);
+                    return Tuple.Create(typeId, reqs);
                 })))
                 .Where(a => null != a)
                 .ToList();

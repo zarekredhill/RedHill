@@ -10,13 +10,10 @@ namespace RedHill.Core.ESI
         public string Name { get; }
         public string Description { get; }
 
-        public ImmutableDictionary<Attribute, decimal> AttributeValues { get; }
-
-        public TypeInfo(int id, string name, string description, ImmutableDictionary<Attribute, decimal> attributeValues)
+        public TypeInfo(int id, string name, string description)
         {
             Id = id;
             Name = name;
-            AttributeValues = attributeValues;
             Description = description;
         }
     }

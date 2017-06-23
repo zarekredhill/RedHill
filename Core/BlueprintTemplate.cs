@@ -6,14 +6,14 @@ namespace RedHill.Core
 {
     public class BlueprintTemplate
     {
-        public StaticTypeData Type { get; }
+        public TypeInfo Type { get; }
         public int MaxProductionLimit { get; }
         public TimeSpan? CopyTime { get; }
         public TimeSpan? MaterialResearchTime { get; }
         public TimeSpan? TimeResearchTime { get; }
         public ManufacturingDetails Manufacturing { get; }
 
-        public BlueprintTemplate(StaticTypeData type, int maxProductionLimit, TimeSpan? copyTime, TimeSpan? materialResearchTime, TimeSpan? timeResearchTime, ManufacturingDetails manufacturing)
+        public BlueprintTemplate(TypeInfo type, int maxProductionLimit, TimeSpan? copyTime, TimeSpan? materialResearchTime, TimeSpan? timeResearchTime, ManufacturingDetails manufacturing)
         {
             Type = type;
             MaxProductionLimit = maxProductionLimit;
@@ -26,11 +26,11 @@ namespace RedHill.Core
         public class ManufacturingDetails
         {
             public TimeSpan Time { get; }
-            public StaticTypeData ProductType { get; }
+            public TypeInfo ProductType { get; }
             public int ProductQuantity { get; }
             public ImmutableList<Skill.Requirement> Requirements { get; }
 
-            public ManufacturingDetails(TimeSpan time, StaticTypeData productType, int productQuantity, ImmutableList<Skill.Requirement> requirements)
+            public ManufacturingDetails(TimeSpan time, TypeInfo productType, int productQuantity, ImmutableList<Skill.Requirement> requirements)
             {
                 Time = time;
                 ProductType = productType;

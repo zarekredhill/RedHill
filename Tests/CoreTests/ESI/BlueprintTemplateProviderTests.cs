@@ -18,10 +18,10 @@ namespace RedHill.CoreTests.ESI
         }
 
         [Fact]
-        public void TestParse()
+        public async void TestParse()
         {
             var dataProvider = Services.GetService<BlueprintTemplateProvider>();
-            Assert.NotEmpty(dataProvider.Data);
+            Assert.NotEmpty(await dataProvider.Get());
         }
     }
 }
