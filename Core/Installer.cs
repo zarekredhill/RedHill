@@ -26,7 +26,7 @@ namespace RedHill.Core
                 Layout = "${longdate}|${logger}|${uppercase:${level}}|${message} ${exception}"
             };
             config.AddTarget(t);
-            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, t));
+            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Info, t));
             LogManager.Configuration = config;
             LogManager.Configuration.Reload();
 

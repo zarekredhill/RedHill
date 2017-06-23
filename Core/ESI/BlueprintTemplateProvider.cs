@@ -18,8 +18,8 @@ namespace RedHill.Core.ESI
         private StaticFileProvider StaticFileProvider { get; }
         private ImmutableDictionary<TypeInfo, BlueprintTemplate> Cache { get; set; }
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
-        private ImmutableDictionary<int, TypeInfo> TypeInfos => TypeInfos ?? TypeInfoProvider.Get();
+        private ImmutableDictionary<int, TypeInfo> TypeInfos { get; set; }
+        private ImmutableDictionary<int, Skill> Skills { get; set; }
 
         public BlueprintTemplateProvider(TypeInfoProvider typeInfoProvider, SkillsProvider skillsProvider, StaticFileProvider staticFileProvider)
         {
@@ -40,12 +40,14 @@ namespace RedHill.Core.ESI
                 _semaphore.Release();
             }
 
-            var data = await GetData();
             await _semaphore.WaitAsync();
+            Skills = Skills ?? (await SkillsProvider.Get()).ToImmutableDictionary(a => a.Type.Id);
+            TypeInfos = TypeInfos ?? TypeInfoProvider.Get();
+            var data = await GetData();
             try
             {
                 if (null != Cache) return Cache;
-                return Cache = await GetData();
+                return Cache = data;
             }
             finally
             {
@@ -55,7 +57,6 @@ namespace RedHill.Core.ESI
 
         private async Task<ImmutableDictionary<TypeInfo, BlueprintTemplate>> GetData()
         {
-            var typeInfos = TypeInfoProvider.Get();
             var data = await Parse(StaticFileProvider.Get("sde", "fsd", "blueprints.yaml"));
             Log.Info("Blueprint templates loaded ({0}).", data.Count);
             return data;
@@ -68,9 +69,11 @@ namespace RedHill.Core.ESI
             {
                 var keyNode = (YamlScalarNode)kvp.Key;
                 var id = int.Parse(keyNode.Value);
-                var type = TypeInfos[id];
+                TypeInfo type;
+                if (!TypeInfos.TryGetValue(id, out type)) continue;
+                Log.Info("Parsing blueprint {0}", id);
 
-                var blueprint = Parse(skillsLookup, type, keyNode, (YamlMappingNode)kvp.Value);
+                var blueprint = Parse(type, keyNode, (YamlMappingNode)kvp.Value);
                 if (null == blueprint) continue;
 
                 dict[blueprint.Type] = blueprint;
@@ -78,47 +81,91 @@ namespace RedHill.Core.ESI
             return dict.ToImmutableDictionary();
         }
 
-        private BlueprintTemplate Parse(ImmutableDictionary<int, Skill> skillsLookup, TypeInfo type, YamlScalarNode keyNode, YamlMappingNode valueNode)
+        private BlueprintTemplate Parse(TypeInfo type, YamlScalarNode keyNode, YamlMappingNode valueNode)
         {
-            int copyTimeSecond;
+            var activities = valueNode.Get<YamlMappingNode>("activities");
+            var copyingDetails = GetCopyingDetails(activities, valueNode.GetScalar<int>("maxProductionLimit"));
+            var manufacturingDetails = GetManufacturingDetails(activities);
 
-            var times = new[] { "copying", "research_material", "research_time" }
-                .Select(a => valueNode.TryGetScalar<int>(out copyTimeSecond, "activities", a, "time")
-               ? (TimeSpan?)TimeSpan.FromSeconds(copyTimeSecond)
-               : null).ToArray();
+            if (manufacturingDetails == null) return null;
 
-            var copyTime = times[0];
-            var materialResearchTime = times[1];
-            var timeResearchTime = times[2];
-            var maxProductionLimit = valueNode.GetScalar<int>("maxProductionLimit");
-
-            YamlMappingNode manufacturingNode;
-            if (!valueNode.TryGet<YamlMappingNode>(out manufacturingNode, "activities", "manufacturing")) return null;
-
-            var manufacturing = GetManufacturingDetails(skillsLookup, manufacturingNode);
-
-            return new BlueprintTemplate(type, maxProductionLimit, copyTime, materialResearchTime, timeResearchTime, manufacturing);
+            return new BlueprintTemplate(type, copyingDetails, manufacturingDetails);
         }
 
-        private BlueprintTemplate.ManufacturingDetails GetManufacturingDetails(ImmutableDictionary<int, Skill> skillsLookup, YamlMappingNode node)
+        private BlueprintTemplate.CopyingDetails GetCopyingDetails(YamlMappingNode activities, int maxRunsPerCopy)
         {
-            var time = TimeSpan.FromSeconds(node.GetScalar<int>("time"));
-            YamlSequenceNode productsNode;
-            if (!node.TryGet<YamlSequenceNode>(out productsNode, "products")) return null;
-            var productNode = productsNode.Single();
+            YamlMappingNode mainNode;
+            if (!activities.TryGet<YamlMappingNode>(out mainNode, "copying")) return null;
 
-            var product = TypeInfos[productNode.GetScalar<int>("typeID")];
-            if (null == product) return null;
-
-            var quantity = productNode.GetScalar<int>("quantity");
+            YamlSequenceNode materialsNode;
+            var materials = (mainNode.TryGet<YamlSequenceNode>(out materialsNode, "materials")
+                    ? materialsNode.Children.Cast<YamlMappingNode>()
+                        .Select(a => 
+                            {
+                                TypeInfo type = null;
+                                TypeInfos.TryGetValue(a.GetScalar<int>("typeID"), out type);
+                                return Tuple.Create(type, a.GetScalar<int>("quantity"));
+                            }
+                        )
+                        .Where(a => null != a.Item1)
+                        .ToDictionary(a => a.Item1, a => a.Item2)
+                    : new Dictionary<TypeInfo, int>())
+                .ToImmutableDictionary();
 
             YamlSequenceNode skillsNode;
-            var skillReqs = (node.TryGet<YamlSequenceNode>(out skillsNode, "skills")
-                    ? skillsNode.Select(a => new Skill.Requirement(skillsLookup[a.GetScalar<int>("typeID")], a.GetScalar<int>("level")))
+            var requirements = (mainNode.TryGet<YamlSequenceNode>(out skillsNode, "skills")
+                    ? skillsNode.Children.Cast<YamlMappingNode>().Select(a => new Skill.Requirement(Skills[a.GetScalar<int>("typeID")], a.GetScalar<int>("level")))
                     : Enumerable.Empty<Skill.Requirement>())
                 .ToImmutableList();
 
-            return new BlueprintTemplate.ManufacturingDetails(time, product, quantity, skillReqs);
+            var time = TimeSpan.FromSeconds(mainNode.GetScalar<int>("time"));
+
+            return new BlueprintTemplate.CopyingDetails(time, maxRunsPerCopy, requirements, materials);
+        }
+
+        private BlueprintTemplate.ManufacturingDetails GetManufacturingDetails(YamlMappingNode node)
+        {
+            YamlMappingNode mainNode;
+            if (!node.TryGet<YamlMappingNode>(out mainNode, "manufacturing")) return null;
+
+            YamlSequenceNode materialsNode;
+            var materials = (mainNode.TryGet<YamlSequenceNode>(out materialsNode, "materials")
+                    ? materialsNode.Children.Cast<YamlMappingNode>()
+                        .Select(a => 
+                            {
+                                TypeInfo type = null;
+                                TypeInfos.TryGetValue(a.GetScalar<int>("typeID"), out type);
+                                return Tuple.Create(type, a.GetScalar<int>("quantity"));
+                            }
+                        )
+                        .Where(a => null != a.Item1)
+                        .ToDictionary(a => a.Item1, a => a.Item2)
+                    : new Dictionary<TypeInfo, int>())
+                .ToImmutableDictionary();
+
+            YamlSequenceNode skillsNode;
+            var requirements = (mainNode.TryGet<YamlSequenceNode>(out skillsNode, "skills")
+                    ? skillsNode.Children.Cast<YamlMappingNode>().Select(a => new Skill.Requirement(Skills[a.GetScalar<int>("typeID")], a.GetScalar<int>("level")))
+                    : Enumerable.Empty<Skill.Requirement>())
+                .ToImmutableList();
+
+            YamlSequenceNode productsNode;
+            var product = (mainNode.TryGet<YamlSequenceNode>(out productsNode, "products")
+                    ? productsNode.Children.Cast<YamlMappingNode>()
+                        .Select(a => 
+                                {
+                                    TypeInfo type = null;
+                                    TypeInfos.TryGetValue(a.GetScalar<int>("typeID"), out type);
+                                    return Tuple.Create(type, a.GetScalar<int>("quantity"));
+                                })
+                        .Where(a => null != a.Item1)
+                    : Enumerable.Empty<Tuple<TypeInfo, int>>())
+                .SingleOrDefault();
+            if (null == product) return null;
+
+            var time = TimeSpan.FromSeconds(mainNode.GetScalar<int>("time"));
+
+            return new BlueprintTemplate.ManufacturingDetails(time, product.Item1, product.Item2, requirements, materials);
         }
     }
 }
