@@ -15,12 +15,19 @@ namespace RedHill.Core.ESI
         public int Id { get; }
         public string Name { get; }
         public string Description { get; }
+        public decimal? Volume { get; }
 
-        public TypeInfo(int id, string name, string description)
+        public TypeInfo(int id)
         {
             Id = id;
+        }
+        public TypeInfo(int id, string name, string description, decimal? volume)
+            : this(id)
+        {
+
             Name = name;
             Description = description;
+            Volume = volume;
         }
     }
 }

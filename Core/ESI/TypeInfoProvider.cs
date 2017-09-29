@@ -55,11 +55,14 @@ namespace RedHill.Core.ESI
             var id = int.Parse(keyNode.Value);
 
             string name;
-            if (!valueNode.TryGetScalar(out name, "name", "en")) return new TypeInfo(id, null, null);
+            if (!valueNode.TryGetScalar(out name, "name", "en")) return new TypeInfo(id);
             string description;
             if (!valueNode.TryGetScalar(out description, "description", "en")) description = name;
 
-            return new TypeInfo(id, name, description);
+            decimal d;
+            var volume = valueNode.TryGetScalar<decimal>(out d, "volume") ? (decimal?) d : null;
+
+            return new TypeInfo(id, name, description, volume);
         }
     }
 }

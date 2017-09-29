@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace RedHill.Core.ESI
 {
+    [DebuggerDisplay("{Name}")]
     public class Category
     {
         public int Id { get; }
@@ -13,11 +15,6 @@ namespace RedHill.Core.ESI
             Id = id;
             Name = name;
             GroupIds = groupIds;
-        }
-
-        public override string ToString()
-        {
-            return Name;
         }
     }
 }

@@ -18,11 +18,19 @@ namespace RedHill.CoreTests.ESI
         }
 
         [Fact]
-        public void Testschematics()
+        public void TestSchematics()
         {
             var dataProvider = Services.GetService<PlanetarySchematicsProvider>();
-            var skills = dataProvider.Get();
-            Assert.NotEmpty(skills);
+            var data = dataProvider.Get();
+            Assert.NotEmpty(data);
+        }
+
+        [Fact]
+        public async void TestPlanetaryCommoditiesProvider()
+        {
+            var dataProvider = Services.GetService<PlanetaryCommoditiesProvider>();
+            var data = await dataProvider.Get();
+            Assert.NotEmpty(data);
         }
     }
 }

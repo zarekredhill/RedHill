@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using RedHill.Core.ESI;
 
 namespace RedHill.Core
 {
+    [DebuggerDisplay("{Name}")]
     public class SkillGroup
     {
         public string Name { get; }
@@ -17,6 +19,7 @@ namespace RedHill.Core
         }
     }
 
+    [DebuggerDisplay("{Name}")]
     public class Skill : IType
     {
         public int Id { get; }

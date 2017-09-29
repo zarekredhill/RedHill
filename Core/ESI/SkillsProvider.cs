@@ -32,29 +32,29 @@ namespace RedHill.Core.ESI
         public async Task<ImmutableList<Skill>> Get()
         {
             if (null != Cache) return Cache;
-            return Cache = await GetSkills();
+            return Cache = await GetInternal();
         }
 
-        private async Task<ImmutableList<Skill>> GetSkills()
+        private async Task<ImmutableList<Skill>> GetInternal()
         {
             Log.Info("Building skills.");
 
             var categories = await CategoriesProvider.Get();
             var skillsCategory = categories.Single(a => string.Equals("Skill", a.Name, StringComparison.OrdinalIgnoreCase));
 
-            var flatSkills = (await Task.WhenAll(skillsCategory.GroupIds.Select(async groupId => await GetSkillsForGroup(groupId))))
+            var flatSkills = (await Task.WhenAll(skillsCategory.GroupIds.Select(async groupId => await GetForGroup(groupId))))
                     .SelectMany(a => a);
 
             var typeInfos = TypeInfoProvider.Get();
             Log.Info("Creating skill tree...");
-            var result = CreateSkillsFromFlastList(flatSkills.ToDictionary(a => typeInfos[a.Item1], a => a.Item2))
+            var result = CreateFromFlatList(flatSkills.ToDictionary(a => typeInfos[a.Item1], a => a.Item2))
                             .ToImmutableList();
 
             Log.Info("{0} skills built.", result.Count);
             return result;
         }
 
-        private async Task<IEnumerable<Tuple<int, ImmutableDictionary<int, int>>>> GetSkillsForGroup(int groupId)
+        private async Task<IEnumerable<Tuple<int, ImmutableDictionary<int, int>>>> GetForGroup(int groupId)
         {
             var groupResponse = await RequestHandler.GetResponseAsync("universe", "groups", groupId);
             var objGroup = (JObject)JsonConvert.DeserializeObject(groupResponse);
@@ -74,7 +74,7 @@ namespace RedHill.Core.ESI
             return result;
         }
 
-        private IEnumerable<Skill> CreateSkillsFromFlastList(Dictionary<TypeInfo, ImmutableDictionary<int, int>> flatSkills)
+        private IEnumerable<Skill> CreateFromFlatList(Dictionary<TypeInfo, ImmutableDictionary<int, int>> flatSkills)
         {
             var dict = new Dictionary<int, Skill>();
             int lastCount = 0;

@@ -2,20 +2,20 @@ using System;
 using System.Diagnostics;
 using RedHill.Core.ESI;
 
-namespace RedHill.Core.PlanetaryInteraction
+namespace RedHill.Core
 {
     [DebuggerDisplay("{Name}")]
-    public class PlanetarySchematic : IType
+    public class PlanetaryCommodity : IType
     {
         public int Id { get; }
         public string Name { get; }
-        public TimeSpan CycleTime { get; }
+        public decimal Volume { get; }
 
-        public PlanetarySchematic(int id, string name, TimeSpan cycleTime)
+        public PlanetaryCommodity(int id, string name, decimal volume)
         {
             Id = id;
             Name = name;
-            CycleTime = cycleTime;
+            Volume = volume;
         }
     }
 }
