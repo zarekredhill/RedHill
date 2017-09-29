@@ -12,6 +12,11 @@ namespace RedHill.Core.Util
             if (TryGetScalar(node, out result, path)) return result;
             throw new InvalidOperationException(string.Format("Unable to find path {0} in node {1}", string.Join(",", path), node));
         }
+
+        public static string GetScalar(this YamlNode node, params string[] path)
+        {
+            return GetScalar<string>(node, path);
+        }
         
         public static bool TryGetScalar<T>(this YamlNode node, out T result, params string[] path)
         {

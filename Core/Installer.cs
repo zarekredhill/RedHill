@@ -46,6 +46,7 @@ namespace RedHill.Core
                 .AddSingleton<TypeInfoProvider>()                
                 .AddSingleton<TypeAttributeProvider>()
                 .AddSingleton<DataProvider>()
+                .AddSingleton<PlanetarySchematicsProvider>()
                 .AddDistributedRedisCache(option =>
                {
                    option.Configuration = configuration["RedisSettings:Configuration"];

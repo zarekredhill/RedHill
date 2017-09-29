@@ -95,7 +95,7 @@ namespace RedHill.Core.ESI
                     }
 
                     if (skip) continue;
-                    dict[flatSkill.Key.Id] = new Skill(flatSkill.Key, flatSkill.Value.Select(a => new Skill.Requirement(dict[a.Key], (int)a.Value)).ToImmutableList());
+                    dict[flatSkill.Key.Id] = new Skill(flatSkill.Key.Id, flatSkill.Key.Name, flatSkill.Value.Select(a => new Skill.Requirement(dict[a.Key], (int)a.Value)).ToImmutableList());
                     toRemove.Add(flatSkill.Key);
                 }
                 foreach (var a in toRemove) flatSkills.Remove(a);

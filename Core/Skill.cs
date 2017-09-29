@@ -17,14 +17,16 @@ namespace RedHill.Core
         }
     }
 
-    public class Skill
+    public class Skill : IType
     {
-        public TypeInfo Type { get; }
+        public int Id { get; }
+        public string Name { get; }
         public ImmutableList<Requirement> Requirements { get; }
 
-        public Skill(TypeInfo type, ImmutableList<Requirement> requirements)
+        public Skill(int id, string name, ImmutableList<Requirement> requirements)
         {
-            Type = type;
+            Id = id;
+            Name = name;
             Requirements = requirements;
         }
 

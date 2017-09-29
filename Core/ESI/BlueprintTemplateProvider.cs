@@ -41,7 +41,7 @@ namespace RedHill.Core.ESI
             }
 
             await _semaphore.WaitAsync();
-            Skills = Skills ?? (await SkillsProvider.Get()).ToImmutableDictionary(a => a.Type.Id);
+            Skills = Skills ?? (await SkillsProvider.Get()).ToImmutableDictionary(a => a.Id);
             TypeInfos = TypeInfos ?? TypeInfoProvider.Get();
             var data = await GetData();
             try
@@ -63,7 +63,7 @@ namespace RedHill.Core.ESI
         }
         private async Task<ImmutableDictionary<TypeInfo, BlueprintTemplate>> Parse(YamlDocument yamlDocument)
         {
-            var skillsLookup = (await SkillsProvider.Get()).ToImmutableDictionary(a => a.Type.Id);
+            var skillsLookup = (await SkillsProvider.Get()).ToImmutableDictionary(a => a.Id);
             var dict = new Dictionary<TypeInfo, BlueprintTemplate>();
             foreach (var kvp in ((YamlMappingNode)yamlDocument.RootNode).Children)
             {

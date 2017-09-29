@@ -34,7 +34,7 @@ namespace RedHill.Core.ESI
         private ImmutableDictionary<int, TypeInfo> GetData()
         {
             var data = Parse(StaticFileProvider.Get("sde", "fsd", "typeIDs.yaml"));
-            Log.Info("Static type data loaded. ({0})", data.Count);
+            Log.Info("Static data loaded. ({0})", data.Count);
             return data;
         }
 
